@@ -1,15 +1,16 @@
+import React from 'react'
 import { Logo } from '../Logo'
 import { ChartButton } from './ChartButton'
 import { ChartHover } from './ChartHover'
 import { ChartLoader } from './ChartLoader'
 
-interface Props {
+export interface ChartProps {
   endpoint: string
   tokens?: { symbol: string; endpoint: string }[]
   days?: 30 | 90
 }
 
-export function Chart({ endpoint, tokens, days = 90 }: Props) {
+export function Chart({ endpoint, tokens, days = 90 }: ChartProps) {
   return (
     <section className="Chart" data-endpoint={endpoint}>
       <p className="Chart-Range">...</p>
@@ -51,7 +52,7 @@ export function Chart({ endpoint, tokens, days = 90 }: Props) {
       </div>
       {tokens && tokens.length > 0 && (
         <div className="Chart-TokenControls">
-          <span className="Chart-TokenTitle">Filter by token:</span>
+          <span className="Chart-TokenTitle">Tokens:</span>
           {tokens.map((x) => (
             <ChartButton
               key={x.symbol}
@@ -60,6 +61,7 @@ export function Chart({ endpoint, tokens, days = 90 }: Props) {
               endpoint={x.endpoint}
             />
           ))}
+          <button className="Chart-MoreTokens">More…</button>
         </div>
       )}
     </section>

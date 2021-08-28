@@ -1,8 +1,9 @@
-import { PageMetadata } from '../../PageMetadata'
+import cheerio, { Cheerio, Element } from 'cheerio'
 import fsx from 'fs-extra'
-import path from 'path'
 import MarkdownIt from 'markdown-it'
-import cheerio from 'cheerio'
+import path from 'path'
+import { PageMetadata } from '../../PageMetadata'
+import { renderHeading } from './renderHeading'
 
 export interface FaqPageProps {
   title: string
@@ -16,7 +17,7 @@ export function getFaqPageProps(): FaqPageProps {
     metadata: {
       title: 'L2BEAT – Frequently Asked Questions',
       description:
-        'L2BEAT is a analytics and research website about Ethereum layer 2 scaling.',
+        'Frequently Asked Questions about L2BEAT – an analytics and research website about Ethereum layer 2 scaling.',
       image: 'https://l2beat.com/meta-images/overview.png',
       url: 'https://l2beat.com/faq/',
     },
@@ -36,13 +37,24 @@ function getHtml() {
   })
   $('h1, h2, h3, h4, h5, h6').each(function () {
     const $el = $(this)
-    if (!$el.attr('id')) {
-      const id = $el
-        .text()
-        .toLowerCase()
-        .replace(/[^a-z]/g, '-')
-      $el.attr('id', id)
-    }
+    const html = renderHeading(
+      parseInt(this.tagName[1]),
+      $el.text(),
+      getId($el)
+    )
+    $el.replaceWith($(html))
   })
   return $('body').html() ?? ''
+}
+
+function getId($el: Cheerio<Element>) {
+  return (
+    $el.attr('id') ??
+    $el
+      .text()
+      .toLowerCase()
+      .replace(/[^a-z\d]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  )
 }

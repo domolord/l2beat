@@ -1,7 +1,8 @@
 import { Project } from '@l2beat/config'
+import React from 'react'
 import { L2Data } from '../../L2Data'
-import { ProjectPage } from './ProjectPage'
-import { getProjectPageProps } from './props'
+import { getProjectPage } from './props'
+import { ProjectPage } from './view/ProjectPage'
 
 interface Props {
   project: Project
@@ -9,5 +10,5 @@ interface Props {
 }
 
 export function Project(props: Props) {
-  return <ProjectPage {...getProjectPageProps(props.project, props.l2Data)} />
+  return <ProjectPage {...getProjectPage(props.project, props.l2Data)} />
 }

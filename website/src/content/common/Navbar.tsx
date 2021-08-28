@@ -1,3 +1,4 @@
+import React from 'react'
 import { config } from '../config'
 import { GithubIcon, MoonIcon, SunIcon, TwitterIcon } from './icons'
 import { Logo } from './Logo'
@@ -25,18 +26,18 @@ export function Navbar() {
         </li>
         <li className="Navbar-Link compact">
           <OutLink href="https://twitter.com/l2beatcom" title="Twitter">
-            <TwitterIcon aria-label="Twitter" />
+            <TwitterIcon />
           </OutLink>
         </li>
         <li className="Navbar-Link compact">
           <OutLink href="https://github.com/l2beat/l2beat" title="Github">
-            <GithubIcon aria-label="Github" />
+            <GithubIcon />
           </OutLink>
         </li>
       </ul>
       <button className="Navbar-Mode" title="Change color scheme">
-        <SunIcon className="Navbar-LightMode" aria-label="Light Mode" />
-        <MoonIcon className="Navbar-DarkMode" aria-label="Light Mode" />
+        <SunIcon className="Navbar-LightMode" aria-label="Toggle light mode" />
+        <MoonIcon className="Navbar-DarkMode" aria-label="Toggle dark mode" />
       </button>
     </nav>
   )

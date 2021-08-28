@@ -1,4 +1,13 @@
-import { Project } from './Project'
+import {
+  CONTRACTS,
+  DATA_AVAILABILITY,
+  EXITS,
+  FORCE_TRANSACTIONS,
+  OPERATOR,
+  RISK_VIEW,
+  STATE_CORRECTNESS,
+} from './common'
+import { Project } from './types'
 
 export const arbitrum: Project = {
   name: 'Arbitrum',
@@ -9,8 +18,22 @@ export const arbitrum: Project = {
       sinceBlock: 12525700,
       tokens: ['ETH'],
     },
+    {
+      address: '0xcEe284F754E854890e311e3280b767F80797180d',
+      sinceBlock: 12647126,
+      tokens: ['USDC'],
+    },
+    {
+      address: '0xa3A7B6F88361F48403514059F1F16C8E78d60EeC',
+      sinceBlock: 12640867,
+      tokens: ['LINK', 'WBTC'],
+    },
   ],
   details: {
+    warning: 'Arbitrum is currently only open to whitelisted developers.',
+    description:
+      'Arbitrum is an Optimistic Rollup that aims to feel exactly like interacting with Ethereum, but with transactions costing a fraction of what they do on L1.',
+    purpose: 'Universal',
     links: {
       websites: ['https://arbitrum.io/', 'https://offchainlabs.com/'],
       apps: [],
@@ -27,28 +50,19 @@ export const arbitrum: Project = {
         'https://discord.gg/5KE54JwyTs',
       ],
     },
-    purpose: 'Universal',
+    riskView: {
+      stateValidation: RISK_VIEW.STATE_FP_INT,
+      dataAvailability: RISK_VIEW.DATA_ON_CHAIN,
+      upgradeability: RISK_VIEW.UPGRADABLE_YES,
+      operatorCensoring: RISK_VIEW.CENSORING_TRANSACT_L1,
+      operatorDown: RISK_VIEW.DOWN_PROPOSE_BLOCKS,
+    },
     technology: {
       category: {
         name: 'Optimistic Rollup',
-        references: [
-          {
-            text: 'Arbitrum Rollup Basics - Arbitrum documentation',
-            href: 'https://developer.offchainlabs.com/docs/rollup_basics',
-          },
-        ],
       },
       stateCorrectness: {
-        name: 'Fraud proofs ensure state correctness',
-        shortName: 'Fraud proofs',
-        description:
-          'The published state root is assumed to be correct. For a certain time period, usually one week anyone can submit a fraud proof that shows that the state was incorrect.',
-        risks: [
-          {
-            category: 'Funds can be stolen if',
-            text: 'there is noone that checks the published state. Fraud proofs assume at least one honest and able validator.',
-          },
-        ],
+        ...STATE_CORRECTNESS.FRAUD_PROOFS,
         references: [
           {
             text: 'Executing and Securing the Chain - Arbitrum documentation',
@@ -57,11 +71,7 @@ export const arbitrum: Project = {
         ],
       },
       dataAvailability: {
-        name: 'All transaction data is recorded on chain',
-        shortName: 'On chain',
-        description:
-          'All transactions executed on the Arbitrum Rollup chain are submitted to an Inbox smart contract. The execution of the chain is based entirely on the submitted transactions, so anyone monitoring the inbox can know the correct state of the Arbitrum chain.',
-        risks: [],
+        ...DATA_AVAILABILITY.ON_CHAIN_CANONICAL,
         references: [
           {
             text: 'Submitting Transactions - Arbitrum documentation',
@@ -69,9 +79,57 @@ export const arbitrum: Project = {
           },
         ],
       },
+      operator: {
+        ...OPERATOR.CENTRALIZED_SEQUENCER,
+        references: [
+          {
+            text: 'Validators - Arbitrum documentation',
+            href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#validators',
+          },
+          {
+            text: 'If the sequencer is malicious - Arbitrum documentation',
+            href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#if-the-sequencer-is-malicious',
+          },
+        ],
+      },
+      forceTransactions: {
+        ...FORCE_TRANSACTIONS.CANONICAL_ORDERING,
+        references: [
+          {
+            text: 'Submitting Transactions - Arbitrum documentation',
+            href: 'https://developer.offchainlabs.com/docs/rollup_basics#submitting-transactions',
+          },
+        ],
+      },
+      exitMechanisms: [
+        {
+          ...EXITS.REGULAR('optimistic', 'merkle proof'),
+          references: [
+            {
+              text: 'L2 to L1 Messages Lifecycle - Arbitrum documentation',
+              href: 'https://developer.offchainlabs.com/docs/l1_l2_messages#l2-to-l1-messages-lifecycle',
+            },
+            {
+              text: 'Rules for Confirming or Rejecting Rollup Blocks - Arbitrum documentation',
+              href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#rules-for-confirming-or-rejecting-rollup-blocks',
+            },
+          ],
+        },
+        {
+          name: 'Tradeable Bridge Exit',
+          description:
+            "When a user initiates a regular withdrawal a third party verifying the chain can offer to buy this withdrawal by paying the user on L1. The user will get the funds immediately, however the third party has to wait for the block to be finalized. This is implemented as a first party functionality inside Arbitrum's token bridge.",
+          risks: [],
+          references: [
+            {
+              text: 'Tradeable Bridge Exits - Arbitrum documentation',
+              href: 'https://developer.offchainlabs.com/docs/withdrawals#tradeable-bridge-exits',
+            },
+          ],
+        },
+      ],
       smartContracts: {
         name: 'EVM compatible smart contracts are supported',
-        shortName: 'AVM',
         description:
           'Arbitrum uses the Arbitrum Virtual Machine (AVM) to execute transactions. This is similar to the EVM, but is independent from it and allows fraud proofs to be executed.',
         risks: [
@@ -87,71 +145,96 @@ export const arbitrum: Project = {
           },
         ],
       },
-      operator: {
-        name: 'The sequencer is centralized.',
-        shortName: 'Centralized',
-        description:
-          'In the beginning Arbitrum is asking users to trust its centralized sequencer. Later it plans to switch to decentralized fair sequencing',
-        risks: [
+      contracts: {
+        addresses: [
           {
-            category: 'Funds can be lost if',
-            text: 'the sequencer refuses to include user transactions and they have to submit them on L1',
+            address: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+            name: 'ProxyAdmin',
+            description:
+              'Through this contract that controls upgrades for most other contracts. It is owned by a single private key.',
           },
           {
-            category: 'Funds can be lost if',
-            text: 'the sequencer exploits their centralized position and frontruns user transactions',
-          },
-        ],
-        references: [
-          {
-            text: 'Validators - Arbitrum documentation',
-            href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#validators',
-          },
-          {
-            text: 'If the sequencer is malicious - Arbitrum documentation',
-            href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#if-the-sequencer-is-malicious',
-          },
-        ],
-      },
-      forceTransactions: {
-        name: 'Users can force submit any transaction',
-        shortName: 'Any',
-        description:
-          'Because the state of Arbitrum is based on transactions submitted to the Inbox smart contract and anyone can submit their transactions there it allows the users to circumvent censorship by interacting with the smart contract directly.',
-        risks: [],
-        references: [
-          {
-            text: 'Submitting Transactions - Arbitrum documentation',
-            href: 'https://developer.offchainlabs.com/docs/rollup_basics#submitting-transactions',
-          },
-        ],
-      },
-      exitMechanisms: [
-        {
-          name: 'Regular Exit',
-          description:
-            'When a user initiates a withdrawal it is processed as a L2 to L1 message. Because Arbitrum is an optimistic rollup this transaction has to be included in a block and finalized. This takes several days to happen after which the funds can be withdrawn on L1.',
-          risks: [],
-          references: [
-            {
-              text: 'Rules for Confirming or Rejecting Rollup Blocks - Arbitrum documentation',
-              href: 'https://developer.offchainlabs.com/docs/inside_arbitrum#rules-for-confirming-or-rejecting-rollup-blocks',
+            address: '0x011B6E24FfB0B5f5fCc564cf4183C5BBBc96D515',
+            name: 'Bridge',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+              implementation: '0xCB0DA32914A683286Ed2D4890E8157fFecc9bd06',
             },
-          ],
-        },
-        {
-          name: 'Tradeable Bridge Exit',
-          description:
-            "When a user initiates a regular withdrawal a third party verifying the chain can offer to buy this withdrawal by paying the user on L1. This is implemented as a first party functionality inside Arbitrum's token bridge.",
-          risks: [],
-          references: [
-            {
-              text: 'Tradeable Bridge Exits - Arbitrum documentation',
-              href: 'https://developer.offchainlabs.com/docs/withdrawals#tradeable-bridge-exits',
+          },
+          {
+            address: '0xc8C3194eD3BE7B2393fEfE811a2Cc39297442c0B',
+            name: 'RollupEventBridge',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+              implementation: '0x5c7355e46D5486583a1CC211701e25004231D9dd',
             },
-          ],
-        },
-      ],
+          },
+          {
+            address: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+            name: 'Inbox',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+              implementation: '0xB38634F1192fd4A4864b99a4C9100339815c6450',
+            },
+          },
+          {
+            address: '0x667e23ABd27E623c11d4CC00ca3EC4d0bD63337a',
+            name: 'Outbox',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+              implementation: '0x19D6ddDC21503F4C8cD62Ce2A9FF94Bd590b49B0',
+            },
+          },
+          {
+            address: '0xC12BA48c781F6e392B49Db2E25Cd0c28cD77531A',
+            name: 'Rollup',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x171a2624302775eF943f4f62E76fd22A6813d7c4',
+              implementation: '0xAE71755B42D1EF5Fb365Aeb4A74CB73992dd9fBE',
+            },
+          },
+          {
+            address: '0x9aD46fac0Cf7f790E5be05A0F15223935A0c0aDa',
+            name: 'ProxyAdmin (2)',
+            description:
+              'This is a different proxy admin for the three contracts below. It is also owned by a single private key.',
+          },
+          {
+            address: '0x72Ce9c846789fdB6fC1f34aC4AD25Dd9ef7031ef',
+            name: 'L1GatewayRouter',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x9aD46fac0Cf7f790E5be05A0F15223935A0c0aDa',
+              implementation: '0x4b2Cf3BE8677096310b32a648b0Bdb8c5A8dDC94',
+            },
+          },
+          {
+            address: '0xa3A7B6F88361F48403514059F1F16C8E78d60EeC',
+            name: 'L1ERC20Gateway',
+            description: CONTRACTS.UNVERIFIED_DESCRIPTION,
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x9aD46fac0Cf7f790E5be05A0F15223935A0c0aDa',
+              implementation: '0x41AC92014C66C38bBBDEF8cCF5A060CCa5634fd5',
+            },
+          },
+          {
+            address: '0xcEe284F754E854890e311e3280b767F80797180d',
+            name: 'L1CustomGateway',
+            upgradeability: {
+              type: 'EIP1967',
+              admin: '0x9aD46fac0Cf7f790E5be05A0F15223935A0c0aDa',
+              implementation: '0xc5199b28d5267F80A7FA7a3313357D50Cf4Dba6C',
+            },
+          },
+        ],
+        risks: [CONTRACTS.UNVERIFIED_RISK, CONTRACTS.UPGRADE_NO_DELAY_RISK],
+      },
     },
     news: [
       {
@@ -195,7 +278,7 @@ export const arbitrum: Project = {
         name: 'Can funds be stolen by the operator?',
         value: 'Yes, through contract upgrade',
         tooltip: 'Contracts are upgradable',
-        sentiment: 'neutral',
+        sentiment: 'warning',
       },
       {
         name: 'Permissionless?',

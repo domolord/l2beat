@@ -14,6 +14,10 @@
     margin-top: 4px;
     list-style-type: disc;
   }
+
+  a {
+    word-break: break-all;
+  }
 }
 
 .ProjectParameter-Name {
@@ -26,15 +30,15 @@
   position: relative;
 
   &[data-sentiment='good'] {
-    color: var(--positive-green);
+    color: var(--text-good);
   }
 
-  &[data-sentiment='neutral'] {
-    color: var(--neutral-yellow);
+  &[data-sentiment='warning'] {
+    color: var(--text-warning);
   }
 
   &[data-sentiment='bad'] {
-    color: var(--negative-red);
+    color: var(--text-bad);
   }
 }
 

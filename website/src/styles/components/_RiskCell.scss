@@ -1,0 +1,19 @@
+.RiskCell {
+  &.warning {
+    background-color: var(--highlight-warning);
+    color: var(--dark-text);
+    padding: 0 4px;
+    border-radius: 2px;
+  }
+
+  &.bad {
+    background-color: var(--highlight-bad);
+    color: var(--light-text);
+    padding: 0 4px;
+    border-radius: 2px;
+  }
+
+  &.unknown {
+    color: var(--text-muted);
+  }
+}
